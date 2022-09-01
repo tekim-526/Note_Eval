@@ -20,6 +20,10 @@ class WriteViewController: BaseViewController {
         super.viewDidLoad()
         
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        writeView.textView.becomeFirstResponder()
+    }
     override func configureUI() {
         navigationItem.largeTitleDisplayMode = .never
     
@@ -34,7 +38,7 @@ class WriteViewController: BaseViewController {
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print(#function)
+        
         if writeView.textView.text != "" {
             if isNew {
                 noteRealm.addTask(task: NoteTable(writtenString: writeView.textView.text))

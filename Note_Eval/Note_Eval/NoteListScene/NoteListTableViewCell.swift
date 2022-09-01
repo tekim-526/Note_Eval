@@ -12,13 +12,13 @@ import SnapKit
 class NoteListTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let view = UILabel()
-        view.text = "123"
+        
         view.textColor = .label
         return view
     }()
     let subtitleLabel: UILabel = {
         let view = UILabel()
-        view.text = "123"
+        view.font = .systemFont(ofSize: 13)
         view.textColor = .lightGray
         return view
     }()
