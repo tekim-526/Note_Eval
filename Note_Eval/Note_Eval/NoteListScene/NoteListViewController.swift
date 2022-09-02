@@ -44,7 +44,7 @@ class NoteListViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tasks = noteRealm.fetch()
-        
+        navigationItem.title = makeNavigationTitle(memoCnt: tasks.count)
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "메모", style: .plain, target: self, action: nil)
     }
@@ -63,7 +63,7 @@ class NoteListViewController: BaseViewController {
     
     override func configureUI() {
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.title = "메모"
+        
         navigationItem.searchController = searchController
         
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
@@ -78,6 +78,14 @@ class NoteListViewController: BaseViewController {
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
+    func makeNavigationTitle(memoCnt: Int) -> String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        guard let count = numberFormatter.string(for: memoCnt) else { return "?"}
+        return count + "개의 메모"
+    }
+    
+    // MARK: - Cell-Related Methods
     func makeSubtitle(_ date: Date, subTitle: String) -> String {
         let dateFormatter = DateFormatter()
         let todayWeekOfYear = Calendar.current.component(.weekOfYear, from: Date())
@@ -101,6 +109,22 @@ class NoteListViewController: BaseViewController {
         } else {
             cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: "추가 텍스트 없음")
         }
+    }
+    
+    func configureCellWithBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, isPinned: Int) {
+        cell.titleLabel.attributedText = makeAttributedString(task: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
+        trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
+    }
+    func configureCellWithTextAndBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, text: String, isPinned: Int) {
+        cell.titleLabel.attributedText = makeAttributedString(task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
+        trimmedText(cell: cell, table: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
+    }
+    func passingData(vc: WriteViewController, task: NoteTable) {
+        vc.task = task
+        vc.writeView.textView.text = task.writtenString
+    }
+    func makeAttributedString(task: NoteTable) -> NSAttributedString {
+        return task.writtenString?.highlightText(searchController.searchBar.text ?? "", with: .systemOrange, caseInsensitive: true) ?? NSAttributedString()
     }
     
 }
@@ -139,48 +163,56 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "NoteListTableViewCell") as? NoteListTableViewCell else { return UITableViewCell() }
         if tableView.numberOfSections == 2 {
             if indexPath.section == 0 {
-                cell.titleLabel.attributedText = noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row].writtenString?
-                    .highlightText(searchController.searchBar.text ?? "", with: .systemOrange, caseInsensitive: true)
-                trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 1)
+                } else {
+                    configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 1)
+                }
             } else if indexPath.section == 1 {
-                cell.titleLabel.attributedText = noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row].writtenString?
-                    .highlightText(searchController.searchBar.text ?? "", with: .systemOrange, caseInsensitive: true)
-                trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 0)
+                } else {
+                    configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 0)
+                }
             }
         } else if tableView.numberOfSections == 1 {
-            cell.titleLabel.attributedText = tasks[indexPath.row].writtenString?
-                .highlightText(searchController.searchBar.text ?? "", with: .systemOrange, caseInsensitive: true)
-            trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+            cell.titleLabel.attributedText = makeAttributedString(task: tasks[indexPath.row])
+            trimmedText(cell: cell, table: tasks[indexPath.row])
         }
-        
-
         return cell
     }
-    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60
     }
+    
     // 셀 탭했을 때 -> WriteViewController로 이동
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = WriteViewController()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "검색", style: .plain, target: self, action: nil)
         if tableView.numberOfSections == 2 {
             if indexPath.section == 0 {
-                vc.task = noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row]
-                vc.writeView.textView.text = noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row].writtenString
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
+                } else {
+                    passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                }
             } else if indexPath.section == 1 {
-                vc.task = noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row]
-                vc.writeView.textView.text = noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row].writtenString
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
+                } else {
+                    passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                }
             }
-        } else {
-            vc.task = noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row]
-            vc.writeView.textView.text = noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row].writtenString
+        } else if tableView.numberOfSections == 1 {
+            passingData(vc: vc, task: tasks[indexPath.row])
+            
         }
         navigationController?.pushViewController(vc, animated: true)
-        
        
     }
+    
+    
     
     // 테이블 뷰 헤더 폰트 및 글자 색상
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -195,12 +227,19 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
             
             if tableView.numberOfSections == 2 {
                 if indexPath.section == 0 {
-                    self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                    if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
+                        self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
+                    } else {
+                        self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                    }
                 } else if indexPath.section == 1 {
-                    self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
-                }
+                    if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
+                        self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
+                    } else {
+                        self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                    }                }
             } else if tableView.numberOfSections == 1 {
-                self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                self.noteRealm.deleteTask(task: self.tasks[indexPath.row])
             }
             tableView.reloadData()
         }
@@ -216,7 +255,11 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
                 if indexPath.section == 0 {
                     self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
                 } else if indexPath.section == 1 {
-                    self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                    if tableView.numberOfRows(inSection: 0) > 4 {
+                        self.showAlert(title: "고정된 메모는 최대 5개 까지 등록 가능합니다.", message: nil)
+                    } else {
+                        self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                    }
                 }
             } else if tableView.numberOfSections == 1 {
                 self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])

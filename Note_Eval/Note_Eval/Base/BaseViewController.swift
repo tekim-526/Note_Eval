@@ -15,4 +15,10 @@ class BaseViewController: UIViewController {
     }
     func configureUI() { }
     func makeConstraints() { }
+    func showAlert(title: String?, message: String?) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "확인", style: .default)
+        alert.addAction(ok)
+        self.present(alert, animated: true)
+    }
 }

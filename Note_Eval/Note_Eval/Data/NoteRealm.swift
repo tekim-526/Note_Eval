@@ -13,16 +13,16 @@ class NoteRealm {
     
     func fetch() -> Results<NoteTable> {
         print(localRealm.configuration.fileURL!)
-        return localRealm.objects(NoteTable.self).sorted(byKeyPath: "date", ascending: false)
+        return localRealm.objects(NoteTable.self).sorted(byKeyPath: "date", ascending: true)
     }
     func fetchTextFilter(text: String) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("writtenString CONTAINS[c] '\(text)'")
+        return localRealm.objects(NoteTable.self).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: true)
     }
     func fetchBooleanFilter(isPinned: Int) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned)
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).sorted(byKeyPath: "date", ascending: true)
     }
     func fetchTextAndBooleanFilter(text: String, isPinned: Int) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'")
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: true)
     }
     
     func updateIsPinned(task: NoteTable) {
