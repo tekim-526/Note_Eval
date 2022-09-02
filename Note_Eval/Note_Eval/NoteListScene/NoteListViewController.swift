@@ -23,6 +23,7 @@ class NoteListViewController: BaseViewController {
         }
     }
     
+    
     // MARK: - Methods
     override func loadView() {
         view = noteListView
@@ -117,11 +118,17 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView.numberOfSections == 2 {
             if section == 0 {
-                tasks = noteRealm.fetchBooleanFilter(isPinned: 1)
-                return tasks.count
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    return noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1).count
+                } else {
+                    return noteRealm.fetchBooleanFilter(isPinned: 1).count
+                }
             } else if section == 1 {
-                tasks = noteRealm.fetchBooleanFilter(isPinned: 0)
-                return tasks.count
+                if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                    return noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0).count
+                } else {
+                    return noteRealm.fetchBooleanFilter(isPinned: 0).count
+                }
             }
         }
         return tasks.count
@@ -266,4 +273,5 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         }
         
     }
+    
 }

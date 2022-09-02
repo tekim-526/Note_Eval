@@ -21,7 +21,9 @@ class NoteRealm {
     func fetchBooleanFilter(isPinned: Int) -> Results<NoteTable> {
         return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned)
     }
-    
+    func fetchTextAndBooleanFilter(text: String, isPinned: Int) -> Results<NoteTable> {
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'")
+    }
     
     func updateIsPinned(task: NoteTable) {
         do {
