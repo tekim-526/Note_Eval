@@ -18,8 +18,8 @@ class NoteRealm {
     func fetchTextFilter(text: String) -> Results<NoteTable> {
         return localRealm.objects(NoteTable.self).filter("writtenString CONTAINS[c] '\(text)'")
     }
-    func fetchBooleanFilter(bool: Int) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("isPinned == %@", bool)
+    func fetchBooleanFilter(isPinned: Int) -> Results<NoteTable> {
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned)
     }
     
     

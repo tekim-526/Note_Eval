@@ -25,6 +25,7 @@
 		9331269328BF24DE00FC8E01 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9331269228BF24DE00FC8E01 /* RealmSwift */; };
 		9331269928BF343100FC8E01 /* NoteListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */; };
 		9331269E28BF45F600FC8E01 /* NoteTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9331269D28BF45F600FC8E01 /* NoteTable.swift */; };
+		937C739428C1EA9700CB7057 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 937C739328C1EA9700CB7057 /* String+Extension.swift */; };
 		93AB484528BF4776007A3A55 /* NoteRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AB484428BF4776007A3A55 /* NoteRealm.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		9331268A28BF236F00FC8E01 /* WriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteView.swift; sourceTree = "<group>"; };
 		9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListTableViewCell.swift; sourceTree = "<group>"; };
 		9331269D28BF45F600FC8E01 /* NoteTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTable.swift; sourceTree = "<group>"; };
+		937C739328C1EA9700CB7057 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		93AB484428BF4776007A3A55 /* NoteRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRealm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -84,6 +86,7 @@
 			children = (
 				9331266628BF1F5100FC8E01 /* AppDelegate.swift */,
 				9331266828BF1F5100FC8E01 /* SceneDelegate.swift */,
+				937C739228C1EA7E00CB7057 /* Extension */,
 				9331269C28BF45E700FC8E01 /* Data */,
 				9331269728BF31FA00FC8E01 /* SearchScene */,
 				9331268328BF227300FC8E01 /* WriteScene */,
@@ -149,6 +152,14 @@
 				93AB484428BF4776007A3A55 /* NoteRealm.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		937C739228C1EA7E00CB7057 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				937C739328C1EA9700CB7057 /* String+Extension.swift */,
+			);
+			path = Extension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -239,6 +250,7 @@
 				9331268728BF231500FC8E01 /* PopUpView.swift in Sources */,
 				9331267B28BF211300FC8E01 /* BaseViewController.swift in Sources */,
 				9331268528BF22F100FC8E01 /* PopUpViewController.swift in Sources */,
+				937C739428C1EA9700CB7057 /* String+Extension.swift in Sources */,
 				9331267E28BF213600FC8E01 /* BaseView.swift in Sources */,
 				9331268028BF222F00FC8E01 /* NoteListView.swift in Sources */,
 				93AB484528BF4776007A3A55 /* NoteRealm.swift in Sources */,
