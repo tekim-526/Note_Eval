@@ -33,7 +33,6 @@ class NoteListViewController: BaseViewController {
         super.viewDidLoad()
         
         searchController.searchResultsUpdater = self
-        searchController.searchBar.delegate = self
         
         noteListView.tableView.delegate = self
         noteListView.tableView.dataSource = self
@@ -130,7 +129,7 @@ class NoteListViewController: BaseViewController {
 }
 
 // MARK: - Extension
-extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, UITableViewDelegate, UITableViewDataSource {
+extension NoteListViewController: UISearchResultsUpdating, UITableViewDelegate, UITableViewDataSource {
     
     // MARK: - TableView Delegate & DataSource
     // 섹션 개수
@@ -161,6 +160,7 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // cell 구성
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "NoteListTableViewCell") as? NoteListTableViewCell else { return UITableViewCell() }
+        
         if tableView.numberOfSections == 2 {
             if indexPath.section == 0 {
                 if let text = searchController.searchBar.text, text != "", searchController.isActive {
@@ -211,9 +211,7 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         navigationController?.pushViewController(vc, animated: true)
        
     }
-    
-    
-    
+        
     // 테이블 뷰 헤더 폰트 및 글자 색상
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else { return }
@@ -241,6 +239,8 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
             } else if tableView.numberOfSections == 1 {
                 self.noteRealm.deleteTask(task: self.tasks[indexPath.row])
             }
+            
+            self.navigationItem.title = self.makeNavigationTitle(memoCnt: self.tasks.count)
             tableView.reloadData()
         }
         action.image = UIImage(systemName: "trash.fill")
@@ -255,7 +255,7 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
                 if indexPath.section == 0 {
                     self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
                 } else if indexPath.section == 1 {
-                    if tableView.numberOfRows(inSection: 0) > 4 {
+                    if self.noteRealm.fetchBooleanFilter(isPinned: 1).count > 4 {
                         self.showAlert(title: "고정된 메모는 최대 5개 까지 등록 가능합니다.", message: nil)
                     } else {
                         self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
@@ -285,7 +285,9 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     
     // 섹션 헤더 제목 설정
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        // tableView.numberOfSections
+        if let text = searchController.searchBar.text, text != "", searchController.isActive {
+            return section == 1 ? "메모 - \(noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0).count)개 찾음" : "고정된 메모 - \(noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1).count)개 찾음"
+        }
         if tableView.numberOfSections == 2 {
             if section == 0 {
                 return "고정된 메모"

@@ -12,17 +12,16 @@ class NoteRealm {
     let localRealm = try! Realm()
     
     func fetch() -> Results<NoteTable> {
-        print(localRealm.configuration.fileURL!)
-        return localRealm.objects(NoteTable.self).sorted(byKeyPath: "date", ascending: true)
+        return localRealm.objects(NoteTable.self).sorted(byKeyPath: "date", ascending: false)
     }
     func fetchTextFilter(text: String) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: true)
+        return localRealm.objects(NoteTable.self).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: false)
     }
     func fetchBooleanFilter(isPinned: Int) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).sorted(byKeyPath: "date", ascending: true)
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).sorted(byKeyPath: "date", ascending: false)
     }
     func fetchTextAndBooleanFilter(text: String, isPinned: Int) -> Results<NoteTable> {
-        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: true)
+        return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: false)
     }
     
     func updateIsPinned(task: NoteTable) {
