@@ -9,15 +9,15 @@ import UIKit
 
 import RealmSwift
 
-class NoteListViewController: BaseViewController {
+final class NoteListViewController: BaseViewController {
     // MARK: - Properties
     
-    let noteListView = NoteListView()
-    let searchController = UISearchController()
+    private let noteListView = NoteListView()
+    private let searchController = UISearchController()
     
-    let noteRealm = NoteRealm()
+    private let noteRealm = NoteRealm()
     
-    var tasks: Results<NoteTable>! {
+    private var tasks: Results<NoteTable>! {
         didSet {
             noteListView.tableView.reloadData()
         }
@@ -33,6 +33,7 @@ class NoteListViewController: BaseViewController {
         super.viewDidLoad()
         
         searchController.searchResultsUpdater = self
+        searchController.searchBar.tintColor = .systemOrange
         
         noteListView.tableView.delegate = self
         noteListView.tableView.dataSource = self
@@ -71,13 +72,13 @@ class NoteListViewController: BaseViewController {
         
     }
     
-    @objc func addNoteButtonTapped() {
+    @objc private func addNoteButtonTapped() {
         let vc = WriteViewController()
         vc.isNew = true
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
-    func makeNavigationTitle(memoCnt: Int) -> String {
+    private func makeNavigationTitle(memoCnt: Int) -> String {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         guard let count = numberFormatter.string(for: memoCnt) else { return "?"}
@@ -85,8 +86,9 @@ class NoteListViewController: BaseViewController {
     }
     
     // MARK: - Cell-Related Methods
-    func makeSubtitle(_ date: Date, subTitle: String) -> String {
+    private func makeSubtitle(_ date: Date, subTitle: String) -> String {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko-KR")
         let todayWeekOfYear = Calendar.current.component(.weekOfYear, from: Date())
         let writtenWeekOfYear = Calendar.current.component(.weekOfYear, from: date)
         
@@ -102,34 +104,36 @@ class NoteListViewController: BaseViewController {
         return dateFormatter.string(from: date) + " " + subTitle
     }
     
-    func trimmedText(cell: NoteListTableViewCell, table: NoteTable) {
+    private func trimmedText(cell: NoteListTableViewCell, table: NoteTable) {
         if let text = table.writtenString, text.contains("\n") {
-            cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: text[text.index(after: text.firstIndex(of: "\n")!)...].description)
+            cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: text[text.index(after: text.firstIndex(of: "\n")!)...].description).replacingOccurrences(of: "\n", with: " ")
         } else {
             cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: "추가 텍스트 없음")
         }
     }
     
-    func configureCellWithBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, isPinned: Int) {
+    private func configureCellWithBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, isPinned: Int) {
         cell.titleLabel.attributedText = makeAttributedString(task: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
         trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
     }
-    func configureCellWithTextAndBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, text: String, isPinned: Int) {
+    private func configureCellWithTextAndBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, text: String, isPinned: Int) {
         cell.titleLabel.attributedText = makeAttributedString(task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
         trimmedText(cell: cell, table: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
     }
-    func passingData(vc: WriteViewController, task: NoteTable) {
+    private func passingData(vc: WriteViewController, task: NoteTable) {
         vc.task = task
         vc.writeView.textView.text = task.writtenString
     }
-    func makeAttributedString(task: NoteTable) -> NSAttributedString {
+    private func makeAttributedString(task: NoteTable) -> NSAttributedString {
         return task.writtenString?.highlightText(searchController.searchBar.text ?? "", with: .systemOrange, caseInsensitive: true) ?? NSAttributedString()
     }
-    
+    private func setLeadingSwipeImage(isPinned: Int, item: Int) -> UIImage? {
+        return noteRealm.fetchBooleanFilter(isPinned: isPinned)[item].isPinned ? UIImage(systemName: "pin.slash.fill") : UIImage(systemName: "pin.fill")
+    }
 }
 
 // MARK: - Extension
-extension NoteListViewController: UISearchResultsUpdating, UITableViewDelegate, UITableViewDataSource {
+extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, UITableViewDelegate, UITableViewDataSource {
     
     // MARK: - TableView Delegate & DataSource
     // 섹션 개수
@@ -296,10 +300,18 @@ extension NoteListViewController: UISearchResultsUpdating, UITableViewDelegate, 
             }
         }
         return "메모"
-    
+        
     }
-    func setLeadingSwipeImage(isPinned: Int, item: Int) -> UIImage? {
-        return noteRealm.fetchBooleanFilter(isPinned: isPinned)[item].isPinned ? UIImage(systemName: "pin.slash.fill") : UIImage(systemName: "pin.fill")
+    func makeif(numberOfSections: Int, indexPath: IndexPath ,completion: @escaping () -> Void) {
+        if numberOfSections == 2 {
+            if indexPath.section == 0 {
+               completion()
+            } else if indexPath.section == 1 {
+                completion()
+            }
+        } else if numberOfSections == 1 {
+            completion()
+        }
     }
     
     // 섹션 높이
@@ -318,5 +330,4 @@ extension NoteListViewController: UISearchResultsUpdating, UITableViewDelegate, 
         }
         
     }
-    
 }
