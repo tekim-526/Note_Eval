@@ -10,7 +10,7 @@ import SnapKit
 
 class PopUpViewController: BaseViewController {
     
-    let popUpView = PopUpView()
+    private let popUpView = PopUpView()
     
     override func viewDidLoad() {
         super.viewDidLoad()

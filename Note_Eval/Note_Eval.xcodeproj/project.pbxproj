@@ -27,6 +27,7 @@
 		9331269E28BF45F600FC8E01 /* NoteTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9331269D28BF45F600FC8E01 /* NoteTable.swift */; };
 		937C739428C1EA9700CB7057 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 937C739328C1EA9700CB7057 /* String+Extension.swift */; };
 		93AB484528BF4776007A3A55 /* NoteRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AB484428BF4776007A3A55 /* NoteRealm.swift */; };
+		93C18DC128C5001F006E13F8 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9331269328BF24DE00FC8E01 /* RealmSwift in Frameworks */,
+				93C18DC128C5001F006E13F8 /* IQKeyboardManagerSwift in Frameworks */,
 				9331269128BF24DE00FC8E01 /* Realm in Frameworks */,
 				9331268E28BF24AA00FC8E01 /* SnapKit in Frameworks */,
 			);
@@ -88,7 +90,6 @@
 				9331266828BF1F5100FC8E01 /* SceneDelegate.swift */,
 				937C739228C1EA7E00CB7057 /* Extension */,
 				9331269C28BF45E700FC8E01 /* Data */,
-				9331269728BF31FA00FC8E01 /* SearchScene */,
 				9331268328BF227300FC8E01 /* WriteScene */,
 				9331268228BF226200FC8E01 /* PopUpScene */,
 				9331268128BF225300FC8E01 /* NoteListScene */,
@@ -138,13 +139,6 @@
 			path = WriteScene;
 			sourceTree = "<group>";
 		};
-		9331269728BF31FA00FC8E01 /* SearchScene */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SearchScene;
-			sourceTree = "<group>";
-		};
 		9331269C28BF45E700FC8E01 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +176,7 @@
 				9331268D28BF24AA00FC8E01 /* SnapKit */,
 				9331269028BF24DE00FC8E01 /* Realm */,
 				9331269228BF24DE00FC8E01 /* RealmSwift */,
+				93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */,
 			);
 			productName = Note_Eval;
 			productReference = 9331266328BF1F5100FC8E01 /* Note_Eval.app */;
@@ -214,6 +209,7 @@
 			packageReferences = (
 				9331268C28BF24AA00FC8E01 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				9331268F28BF24DE00FC8E01 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				93C18DBF28C5001F006E13F8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			productRefGroup = 9331266428BF1F5100FC8E01 /* Products */;
 			projectDirPath = "";
@@ -493,6 +489,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		93C18DBF28C5001F006E13F8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -510,6 +514,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9331268F28BF24DE00FC8E01 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93C18DBF28C5001F006E13F8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

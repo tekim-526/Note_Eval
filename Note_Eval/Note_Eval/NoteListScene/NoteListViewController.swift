@@ -104,6 +104,18 @@ final class NoteListViewController: BaseViewController {
         return dateFormatter.string(from: date) + " " + subTitle
     }
     
+    
+    private func categorizingWithSection(numberOfSections: Int, indexPath: IndexPath , pinnedCompletion: () -> Void, notPinnedCompletion: () -> Void) {
+        if numberOfSections == 2 {
+            if indexPath.section == 0 {
+               pinnedCompletion()
+            } else if indexPath.section == 1 {
+                notPinnedCompletion()
+            }
+        } else if numberOfSections == 1 {
+            notPinnedCompletion()
+        }
+    }
     private func trimmedText(cell: NoteListTableViewCell, table: NoteTable) {
         if let text = table.writtenString, text.contains("\n") {
             cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: text[text.index(after: text.firstIndex(of: "\n")!)...].description).replacingOccurrences(of: "\n", with: " ")
@@ -111,7 +123,6 @@ final class NoteListViewController: BaseViewController {
             cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: "추가 텍스트 없음")
         }
     }
-    
     private func configureCellWithBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, isPinned: Int) {
         cell.titleLabel.attributedText = makeAttributedString(task: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
         trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
@@ -164,25 +175,20 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // cell 구성
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "NoteListTableViewCell") as? NoteListTableViewCell else { return UITableViewCell() }
-        
-        if tableView.numberOfSections == 2 {
-            if indexPath.section == 0 {
-                if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                    configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 1)
-                } else {
-                    configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 1)
-                }
-            } else if indexPath.section == 1 {
-                if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                    configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 0)
-                } else {
-                    configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 0)
-                }
+        categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+            if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 1)
+            } else {
+                configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 1)
             }
-        } else if tableView.numberOfSections == 1 {
-            cell.titleLabel.attributedText = makeAttributedString(task: tasks[indexPath.row])
-            trimmedText(cell: cell, table: tasks[indexPath.row])
+        } notPinnedCompletion: {
+            if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 0)
+            } else {
+                configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 0)
+            }
         }
+
         return cell
     }
     
@@ -194,24 +200,21 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = WriteViewController()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "검색", style: .plain, target: self, action: nil)
-        if tableView.numberOfSections == 2 {
-            if indexPath.section == 0 {
-                if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                    passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
-                } else {
-                    passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
-                }
-            } else if indexPath.section == 1 {
-                if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                    passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
-                } else {
-                    passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
-                }
+        
+        self.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+            if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
+            } else {
+                passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
             }
-        } else if tableView.numberOfSections == 1 {
-            passingData(vc: vc, task: tasks[indexPath.row])
-            
+        } notPinnedCompletion: {
+            if let text = searchController.searchBar.text, text != "", searchController.isActive {
+                passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
+            } else {
+                passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+            }
         }
+
         navigationController?.pushViewController(vc, animated: true)
        
     }
@@ -226,22 +229,18 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // 오른쪽에서 왼쪽으로 cell 스와이프 해서 요소 제거하기
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .destructive, title: nil) { action, view, handler in
-            
-            if tableView.numberOfSections == 2 {
-                if indexPath.section == 0 {
-                    if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
-                        self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
-                    } else {
-                        self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
-                    }
-                } else if indexPath.section == 1 {
-                    if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
-                        self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
-                    } else {
-                        self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
-                    }                }
-            } else if tableView.numberOfSections == 1 {
-                self.noteRealm.deleteTask(task: self.tasks[indexPath.row])
+            self.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+                if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
+                    self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
+                } else {
+                    self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                }
+            } notPinnedCompletion: {
+                if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
+                    self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
+                } else {
+                    self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                }
             }
             
             self.navigationItem.title = self.makeNavigationTitle(memoCnt: self.tasks.count)
@@ -255,30 +254,26 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // 왼쪽에서 오른쪽으로 cell 스와이프 해서 요소 고정된 메모로 올리기
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: nil) { action, view, handler in
-            if tableView.numberOfSections == 2 {
-                if indexPath.section == 0 {
-                    self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
-                } else if indexPath.section == 1 {
-                    if self.noteRealm.fetchBooleanFilter(isPinned: 1).count > 4 {
-                        self.showAlert(title: "고정된 메모는 최대 5개 까지 등록 가능합니다.", message: nil)
-                    } else {
-                        self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
-                    }
+            
+            self.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+                self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+            } notPinnedCompletion: {
+                if self.noteRealm.fetchBooleanFilter(isPinned: 1).count > 4 {
+                    self.showAlert(title: "고정된 메모는 최대 5개 까지 등록 가능합니다.", message: nil)
+                } else {
+                    self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
                 }
-            } else if tableView.numberOfSections == 1 {
-                self.noteRealm.updateIsPinned(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
             }
+
             tableView.reloadData()
         }
-        if tableView.numberOfSections == 2 {
-            if indexPath.section == 0 {
-                action.image = setLeadingSwipeImage(isPinned: 1, item: indexPath.row)
-            } else if indexPath.section == 1 {
-                action.image = setLeadingSwipeImage(isPinned: 0, item: indexPath.row)
-            }
-        } else if tableView.numberOfSections == 1 {
+        
+        categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+            action.image = setLeadingSwipeImage(isPinned: 1, item: indexPath.row)
+        } notPinnedCompletion: {
             action.image = setLeadingSwipeImage(isPinned: 0, item: indexPath.row)
         }
+
         tableView.reloadData()
         
         
@@ -302,17 +297,8 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         return "메모"
         
     }
-    func makeif(numberOfSections: Int, indexPath: IndexPath ,completion: @escaping () -> Void) {
-        if numberOfSections == 2 {
-            if indexPath.section == 0 {
-               completion()
-            } else if indexPath.section == 1 {
-                completion()
-            }
-        } else if numberOfSections == 1 {
-            completion()
-        }
-    }
+    
+    
     
     // 섹션 높이
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

@@ -16,4 +16,16 @@ extension String {
         attrString.addAttribute(.font, value: font, range: NSRange(location: 0, length: attrString.length))
         return attrString
     }
+    func allIsWhiteSpace() -> Bool {
+        var count = 0
+        self.forEach { char in
+            if char.isWhitespace {
+                count += 1
+            }
+        }
+        if self.count == count {
+            return true
+        }
+        return false
+    }
 }

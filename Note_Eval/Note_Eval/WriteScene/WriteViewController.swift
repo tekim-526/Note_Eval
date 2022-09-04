@@ -8,9 +8,9 @@
 import UIKit
 
 class WriteViewController: BaseViewController {
+    private var noteRealm = NoteRealm()
     var isNew: Bool = false
     var writeView = WriteView()
-    var noteRealm = NoteRealm()
     var task: NoteTable!
     
     override func loadView() {
@@ -32,19 +32,18 @@ class WriteViewController: BaseViewController {
         let shareBarButton = UIBarButtonItem(image: shareBarButtonImage, style: .done, target: self, action: #selector(shareBarButtonTapped))
         
         navigationController?.navigationBar.tintColor = .systemOrange
-        
-        
         navigationItem.rightBarButtonItems = [finishBarButton, shareBarButton]
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if writeView.textView.text != "" {
+        if writeView.textView.text != "", !writeView.textView.text.allIsWhiteSpace() {
             if isNew {
                 noteRealm.addTask(task: NoteTable(writtenString: writeView.textView.text))
             } else if !isNew{
                 noteRealm.updateWrittenString(task: task, writtenString: writeView.textView.text)
             }
+            
         } else if isNew == false && writeView.textView.text == "" {
             noteRealm.deleteTask(task: task)
         }
@@ -53,7 +52,9 @@ class WriteViewController: BaseViewController {
         self.navigationController?.popViewController(animated: true)
     }
     @objc func shareBarButtonTapped() {
-        
+        let text = writeView.textView.text
+        let activityViewController = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        self.present(activityViewController, animated: true)
     }
     
 }
