@@ -8,10 +8,10 @@
 import UIKit
 
 extension String {
-    func highlightText(_ text: String, with color: UIColor, caseInsensitive: Bool = false, font: UIFont = .preferredFont(forTextStyle: .body)) -> NSAttributedString {
+    func highlightText(_ text: String, with color: UIColor, font: UIFont = .preferredFont(forTextStyle: .body)) -> NSAttributedString {
         
         let attrString = NSMutableAttributedString(string: self)
-        let range = (self as NSString).range(of: text, options: caseInsensitive ? .caseInsensitive : [])
+        let range = (self as NSString).range(of: text, options: .caseInsensitive)
         attrString.addAttribute(.foregroundColor, value: color, range: range)
         attrString.addAttribute(.font, value: font, range: NSRange(location: 0, length: attrString.length))
         return attrString

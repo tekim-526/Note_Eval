@@ -24,40 +24,40 @@ class NoteRealm {
         return localRealm.objects(NoteTable.self).filter("isPinned == %@", isPinned).filter("writtenString CONTAINS[c] '\(text)'").sorted(byKeyPath: "date", ascending: false)
     }
     
-    func updateIsPinned(task: NoteTable) {
+    func updateIsPinned(task: NoteTable, completion: () -> Void) {
         do {
             try localRealm.write {
                 task.isPinned.toggle()
             }
         } catch {
-            print(error)
+            completion()
         }
     }
-    func updateWrittenString(task: NoteTable, writtenString: String?) {
+    func updateWrittenString(task: NoteTable, writtenString: String?, completion: () -> Void) {
         do {
             try localRealm.write {
                 task.writtenString = writtenString
             }
         } catch {
-            print(error)
+            completion()
         }
     }
-    func addTask(task: NoteTable) {
+    func addTask(task: NoteTable, completion: () -> Void) {
         do {
             try localRealm.write {
                 localRealm.add(task)
             }
         } catch {
-            print(error)
+            completion()
         }
     }
-    func deleteTask(task: NoteTable) {
+    func deleteTask(task: NoteTable, completion: () -> Void) {
         do {
             try localRealm.write {
                 localRealm.delete(task)
             }
         } catch {
-            print(error)
+            completion()
         }
     }
    

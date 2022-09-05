@@ -39,13 +39,13 @@ class WriteViewController: BaseViewController {
         
         if writeView.textView.text != "", !writeView.textView.text.allIsWhiteSpace() {
             if isNew {
-                noteRealm.addTask(task: NoteTable(writtenString: writeView.textView.text))
+                noteRealm.addTask(task: NoteTable(writtenString: writeView.textView.text)) { showAlert(title: "메모를 추가할 수 없습니다.", message: nil) }
             } else if !isNew{
-                noteRealm.updateWrittenString(task: task, writtenString: writeView.textView.text)
+                noteRealm.updateWrittenString(task: task, writtenString: writeView.textView.text) { showAlert(title: "메모를 수정할 수 없습니다.", message: nil) }
             }
             
         } else if isNew == false && writeView.textView.text == "" {
-            noteRealm.deleteTask(task: task)
+            noteRealm.deleteTask(task: task) { showAlert(title: "메모를 지울 수 없습니다.", message: nil) }
         }
     }
     @objc func finishBarButtonTapped() {
