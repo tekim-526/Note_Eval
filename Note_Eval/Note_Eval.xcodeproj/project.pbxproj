@@ -25,6 +25,9 @@
 		9331269328BF24DE00FC8E01 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9331269228BF24DE00FC8E01 /* RealmSwift */; };
 		9331269928BF343100FC8E01 /* NoteListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */; };
 		9331269E28BF45F600FC8E01 /* NoteTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9331269D28BF45F600FC8E01 /* NoteTable.swift */; };
+		9375E454290A6E9C00562D8B /* NoteListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9375E453290A6E9C00562D8B /* NoteListViewModel.swift */; };
+		9375E457290A6EBE00562D8B /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 9375E456290A6EBE00562D8B /* RxCocoa */; };
+		9375E459290A6EBE00562D8B /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9375E458290A6EBE00562D8B /* RxSwift */; };
 		937C739428C1EA9700CB7057 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 937C739328C1EA9700CB7057 /* String+Extension.swift */; };
 		93AB484528BF4776007A3A55 /* NoteRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AB484428BF4776007A3A55 /* NoteRealm.swift */; };
 		93C18DC128C5001F006E13F8 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */; };
@@ -48,6 +51,7 @@
 		9331268A28BF236F00FC8E01 /* WriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteView.swift; sourceTree = "<group>"; };
 		9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListTableViewCell.swift; sourceTree = "<group>"; };
 		9331269D28BF45F600FC8E01 /* NoteTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTable.swift; sourceTree = "<group>"; };
+		9375E453290A6E9C00562D8B /* NoteListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListViewModel.swift; sourceTree = "<group>"; };
 		937C739328C1EA9700CB7057 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		93AB484428BF4776007A3A55 /* NoteRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRealm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,8 +61,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9375E459290A6EBE00562D8B /* RxSwift in Frameworks */,
 				9331269328BF24DE00FC8E01 /* RealmSwift in Frameworks */,
 				93C18DC128C5001F006E13F8 /* IQKeyboardManagerSwift in Frameworks */,
+				9375E457290A6EBE00562D8B /* RxCocoa in Frameworks */,
 				9331269128BF24DE00FC8E01 /* Realm in Frameworks */,
 				9331268E28BF24AA00FC8E01 /* SnapKit in Frameworks */,
 			);
@@ -117,6 +123,7 @@
 				9331266A28BF1F5100FC8E01 /* NoteListViewController.swift */,
 				9331267F28BF222F00FC8E01 /* NoteListView.swift */,
 				9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */,
+				9375E453290A6E9C00562D8B /* NoteListViewModel.swift */,
 			);
 			path = NoteListScene;
 			sourceTree = "<group>";
@@ -177,6 +184,8 @@
 				9331269028BF24DE00FC8E01 /* Realm */,
 				9331269228BF24DE00FC8E01 /* RealmSwift */,
 				93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */,
+				9375E456290A6EBE00562D8B /* RxCocoa */,
+				9375E458290A6EBE00562D8B /* RxSwift */,
 			);
 			productName = Note_Eval;
 			productReference = 9331266328BF1F5100FC8E01 /* Note_Eval.app */;
@@ -210,6 +219,7 @@
 				9331268C28BF24AA00FC8E01 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				9331268F28BF24DE00FC8E01 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				93C18DBF28C5001F006E13F8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
+				9375E455290A6EBE00562D8B /* XCRemoteSwiftPackageReference "RxSwift" */,
 			);
 			productRefGroup = 9331266428BF1F5100FC8E01 /* Products */;
 			projectDirPath = "";
@@ -246,6 +256,7 @@
 				9331268728BF231500FC8E01 /* PopUpView.swift in Sources */,
 				9331267B28BF211300FC8E01 /* BaseViewController.swift in Sources */,
 				9331268528BF22F100FC8E01 /* PopUpViewController.swift in Sources */,
+				9375E454290A6E9C00562D8B /* NoteListViewModel.swift in Sources */,
 				937C739428C1EA9700CB7057 /* String+Extension.swift in Sources */,
 				9331267E28BF213600FC8E01 /* BaseView.swift in Sources */,
 				9331268028BF222F00FC8E01 /* NoteListView.swift in Sources */,
@@ -401,6 +412,7 @@
 				DEVELOPMENT_TEAM = FQ63CT4A3G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Note_Eval/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "김태수";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -430,6 +442,7 @@
 				DEVELOPMENT_TEAM = FQ63CT4A3G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Note_Eval/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "김태수";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -489,6 +502,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		9375E455290A6EBE00562D8B /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
 		93C18DBF28C5001F006E13F8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
@@ -514,6 +535,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9331268F28BF24DE00FC8E01 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		9375E456290A6EBE00562D8B /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9375E455290A6EBE00562D8B /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		9375E458290A6EBE00562D8B /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9375E455290A6EBE00562D8B /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
 		};
 		93C18DC028C5001F006E13F8 /* IQKeyboardManagerSwift */ = {
 			isa = XCSwiftPackageProductDependency;
