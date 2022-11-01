@@ -10,11 +10,13 @@ import RxSwift
 import RxCocoa
 
 class NoteListViewModel {
-    let searchController: UISearchController!
+    var searchedText: String?
     let noteRealm = NoteRealm()
-    init(searchController: UISearchController!) {
-        self.searchController = searchController
+    
+    init(searchedText: String?) {
+        self.searchedText = searchedText
     }
+    
     func makeNavigationTitle(memoCnt: Int) -> String {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
@@ -23,36 +25,36 @@ class NoteListViewModel {
     }
     
     func makeAttributedString(text: String?, font: UIFont? = nil) -> NSAttributedString {
-        return text?.highlightText(searchController.searchBar.text ?? "", with: .systemOrange, font: font ?? .preferredFont(forTextStyle: .body)) ?? NSAttributedString()
+        return text?.highlightText(searchedText ?? "", with: .systemOrange, font: font ?? .preferredFont(forTextStyle: .body)) ?? NSAttributedString()
     }
     
-    func trimmedText(cell: NoteListTableViewCell, table: NoteTable) {
-        guard let text = table.writtenString else { return }
+    func trimmedText(table: NoteTable) -> NSAttributedString? {
+        guard let text = table.writtenString else { return nil }
         if text.contains("\n") {
             let subtitle = makeSubtitle(table.date, subTitle: text[text.index(after: text.firstIndex(of: "\n")!)...].description).replacingOccurrences(of: "\n", with: " ")
-            cell.subtitleLabel.attributedText = makeAttributedString(text: subtitle, font: .systemFont(ofSize: 13))
+            return makeAttributedString(text: subtitle, font: .systemFont(ofSize: 13))
         } else {
-            cell.subtitleLabel.text = makeSubtitle(table.date, subTitle: "추가 텍스트 없음")
+            return makeAttributedString(text: makeSubtitle(table.date, subTitle: "추가 텍스트 없음"), font: .systemFont(ofSize: 13))
         }
     }
     
-    func configureCellWithBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, isPinned: Int) {
-        cell.titleLabel.attributedText = makeAttributedString(text: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row].writtenString)
-        trimmedText(cell: cell, table: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
+    // 리스트 처음 나왔을 때 엔트리포인트
+    func configureCellWithBoolFilter(indexPath: IndexPath, isPinned: Int) -> (title: NSAttributedString?, subtitle : NSAttributedString?) {
+        let title = makeAttributedString(text: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row].writtenString)
+        let subtitle = trimmedText(table: noteRealm.fetchBooleanFilter(isPinned: isPinned)[indexPath.row])
+        return (title, subtitle)
     }
     
-    func configureCellWithTextAndBoolFilter(cell: NoteListTableViewCell, indexPath: IndexPath, text: String, isPinned: Int) {
-        cell.titleLabel.attributedText = makeAttributedString(text: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row].writtenString)
-        trimmedText(cell: cell, table: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
+    // 검색들어갔을 때
+    func configureCellWithTextAndBoolFilter(indexPath: IndexPath, text: String, isPinned: Int) -> (title: NSAttributedString?, subtitle : NSAttributedString?) {
+        let title = makeAttributedString(text: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row].writtenString)
+        let subtitle = trimmedText(table: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: isPinned)[indexPath.row])
+        return (title, subtitle)
     }
     
-    func passingData(vc: WriteViewController, task: NoteTable) {
-        vc.task = task
-        vc.writeView.textView.text = task.writtenString
-    }
     
-    func setLeadingSwipeImage(isPinned: Int, item: Int) -> UIImage? {
-        return noteRealm.fetchBooleanFilter(isPinned: isPinned)[item].isPinned ? UIImage(systemName: "pin.slash.fill") : UIImage(systemName: "pin.fill")
+    func setLeadingSwipeImage(isPinned: Int, item: Int) -> String {
+        return noteRealm.fetchBooleanFilter(isPinned: isPinned)[item].isPinned ? "pin.slash.fill" : "pin.fill"
     }
     
     func makeSubtitle(_ date: Date, subTitle: String) -> String {

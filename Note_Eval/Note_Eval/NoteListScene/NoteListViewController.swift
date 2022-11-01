@@ -26,7 +26,7 @@ final class NoteListViewController: BaseViewController {
             noteListView.tableView.reloadData()
         }
     }
-    lazy var tasksCount = BehaviorRelay(value: tasks.count)
+    lazy var tasksCount = BehaviorSubject(value: tasks.count)
     
     // MARK: - Methods
     override func loadView() {
@@ -35,7 +35,7 @@ final class NoteListViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        noteViewModel = NoteListViewModel(searchController: searchController)
+        noteViewModel = NoteListViewModel(searchedText: searchController.searchBar.text)
         searchController.searchResultsUpdater = self
         searchController.searchBar.tintColor = .systemOrange
         
@@ -47,7 +47,6 @@ final class NoteListViewController: BaseViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tasks = noteRealm.fetch()
         bind()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "메모", style: .plain, target: self, action: nil)
     }
@@ -59,12 +58,12 @@ final class NoteListViewController: BaseViewController {
         if UserDefaults.standard.bool(forKey: "isIntialStart") == false {
             popUpViewController.modalPresentationStyle = .popover
             present(popUpViewController, animated: true)
-        
         }
         
     }
     func bind() {
-        tasksCount.accept(tasks.count)
+        tasks = noteRealm.fetch()
+        tasksCount.onNext(tasks.count)
         tasksCount
             .map { "\($0)개의 메모" }
             .bind(to: navigationItem.rx.title)
@@ -86,6 +85,10 @@ final class NoteListViewController: BaseViewController {
 
         noteListView.toolBar.setItems([flexibleSpace, addNoteButton], animated: true)
         
+    }
+    func passingData(vc: WriteViewController, task: NoteTable) {
+        vc.task = task
+        vc.writeView.textView.text = task.writtenString
     }
 }
 
@@ -126,15 +129,21 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "NoteListTableViewCell") as? NoteListTableViewCell else { return UITableViewCell() }
         noteViewModel.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
             if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                noteViewModel.configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 1)
+                cell.titleLabel.attributedText = noteViewModel.configureCellWithTextAndBoolFilter(indexPath: indexPath, text: text, isPinned: 1).title
+                cell.subtitleLabel.attributedText = noteViewModel.configureCellWithTextAndBoolFilter(indexPath: indexPath, text: text, isPinned: 1).subtitle
+//                noteViewModel.configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 1)
             } else {
-                noteViewModel.configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 1)
+                cell.titleLabel.attributedText = noteViewModel.configureCellWithBoolFilter(indexPath: indexPath, isPinned: 1).title
+                cell.subtitleLabel.attributedText = noteViewModel.configureCellWithBoolFilter(indexPath: indexPath, isPinned: 1).subtitle
             }
         } notPinnedCompletion: {
             if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                noteViewModel.configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 0)
+                cell.titleLabel.attributedText = noteViewModel.configureCellWithTextAndBoolFilter(indexPath: indexPath, text: text, isPinned: 0).title
+                cell.subtitleLabel.attributedText = noteViewModel.configureCellWithTextAndBoolFilter(indexPath: indexPath, text: text, isPinned: 0).subtitle
+//                noteViewModel.configureCellWithTextAndBoolFilter(cell: cell, indexPath: indexPath, text: text, isPinned: 0)
             } else {
-                noteViewModel.configureCellWithBoolFilter(cell: cell, indexPath: indexPath, isPinned: 0)
+                cell.titleLabel.attributedText = noteViewModel.configureCellWithBoolFilter(indexPath: indexPath, isPinned: 0).title
+                cell.subtitleLabel.attributedText = noteViewModel.configureCellWithBoolFilter(indexPath: indexPath, isPinned: 0).subtitle
             }
         }
         return cell
@@ -151,15 +160,15 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
         
         self.noteViewModel.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
             if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                noteViewModel.passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
+                passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row])
             } else {
-                noteViewModel.passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
+                passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 1)[indexPath.row])
             }
         } notPinnedCompletion: {
             if let text = searchController.searchBar.text, text != "", searchController.isActive {
-                noteViewModel.passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
+                passingData(vc: vc, task: noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 0)[indexPath.row])
             } else {
-                noteViewModel.passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
+                passingData(vc: vc, task: noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row])
             }
         }
 
@@ -177,7 +186,7 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // 오른쪽에서 왼쪽으로 cell 스와이프 해서 요소 제거하기
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .destructive, title: nil) { action, view, handler in
-            self.noteViewModel.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
+            self.noteViewModel.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) { 
                 if let text = self.searchController.searchBar.text, text != "", self.searchController.isActive {
                     self.noteRealm.deleteTask(task: self.noteRealm.fetchTextAndBooleanFilter(text: text, isPinned: 1)[indexPath.row]) { self.showAlert(title: "메모를 지울 수 없습니다.", message: nil) }
                 } else {
@@ -190,12 +199,13 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
                     self.noteRealm.deleteTask(task: self.noteRealm.fetchBooleanFilter(isPinned: 0)[indexPath.row]) { self.showAlert(title: "메모를 지울 수 없습니다.", message: nil) }
                 }
             }
-            print("tasksCountS - \(self.tasks.count)")
-            self.tasksCount.accept(self.tasks.count)
+            self.tasksCount.onNext(self.tasks.count)
             tableView.reloadData()
         }
+        
         action.image = UIImage(systemName: "trash.fill")
         let configuration = UISwipeActionsConfiguration(actions: [action])
+        
         return configuration
     }
     
@@ -214,9 +224,11 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
             tableView.reloadData()
         }
         noteViewModel.categorizingWithSection(numberOfSections: tableView.numberOfSections, indexPath: indexPath) {
-            action.image = noteViewModel.setLeadingSwipeImage(isPinned: 1, item: indexPath.row)
+            let systemName = noteViewModel.setLeadingSwipeImage(isPinned: 1, item: indexPath.row)
+            action.image = UIImage(systemName: systemName)
         } notPinnedCompletion: {
-            action.image = noteViewModel.setLeadingSwipeImage(isPinned: 0, item: indexPath.row)
+            let systemName = noteViewModel.setLeadingSwipeImage(isPinned: 0, item: indexPath.row)
+            action.image = UIImage(systemName: systemName)
         }
         tableView.reloadData()
         
@@ -249,8 +261,10 @@ extension NoteListViewController: UISearchBarDelegate, UISearchResultsUpdating, 
     // MARK: - SearchController Protocol
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
+        noteViewModel.searchedText = searchController.searchBar.text
         if text != "" {
             tasks = noteRealm.fetchTextFilter(text: text)
+            
         } else {
             tasks = noteRealm.fetch()
         }

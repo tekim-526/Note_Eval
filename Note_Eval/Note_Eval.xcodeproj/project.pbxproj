@@ -122,8 +122,8 @@
 			children = (
 				9331266A28BF1F5100FC8E01 /* NoteListViewController.swift */,
 				9331267F28BF222F00FC8E01 /* NoteListView.swift */,
-				9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */,
 				9375E453290A6E9C00562D8B /* NoteListViewModel.swift */,
+				9331269828BF343100FC8E01 /* NoteListTableViewCell.swift */,
 			);
 			path = NoteListScene;
 			sourceTree = "<group>";
